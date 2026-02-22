@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Phasmo Field Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07090d;
+    --surface: #0d1117;
+    --surface2: #121820;
+    --surface3: #0a0e14;
+    --border: #1a2535;
+    --accent: #4ecdc4;
+    --gold: #c9a84c;
+    --text: #cdd6e0;
+    --muted: #4a5a6a;
+    --emf: #ff4757;
+    --spirit: #a29bfe;
+    --fp: #fdcb6e;
+    --orbs: #55efc4;
+    --freeze: #74b9ff;
+    --dots: #fd79a8;
+    --writing: #e17055;
+    --confirm: #27ae60;
+    --rule: #c0392b;
+    --hunt: #c0136a;
+    --sanity: #d68910;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Text', serif;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(180deg, #0a0d12 0%, var(--bg) 100%);
+    padding: 1.5rem 1rem 1rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+  }
+
+  .header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(78,205,196,0.4);
+  }
+
+  .header h1 span { color: var(--accent); }
+
+  .header p {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+    font-style: italic;
+  }
+
+  /* ── SEARCH ── */
+  .search-bar {
+    padding: 0.75rem 1rem 0.5rem;
+    position: sticky;
+    top: 76px;
+    z-index: 99;
+    background: var(--bg);
+  }
+
+  .search-bar input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.65rem 1rem 0.65rem 2.6rem;
+    border-radius: 10px;
+    font-family: 'Crimson Text', serif;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+
+  .search-bar input:focus { border-color: var(--accent); }
+
+  .search-wrap { position: relative; }
+
+  .search-wrap::before {
+    content: '🔍';
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.85rem;
+    pointer-events: none;
+  }
+
+  /* ── FILTER CHIPS ── */
+  .filter-section {
+    padding: 0.5rem 1rem 0.75rem;
+    background: var(--bg);
+    position: sticky;
+    top: 133px;
+    z-index: 98;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .filter-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.62rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    margin-bottom: 0.4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .clear-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    cursor: pointer;
+  }
+
+  .chips {
+    display: flex;
+    gap: 0.4rem;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+  .chips::-webkit-scrollbar { display: none; }
+
+  .chip {
+    flex-shrink: 0;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    border: 1px solid;
+    background: transparent;
+    font-family: 'Crimson Text', serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .chip.active { color: #000 !important; }
+
+  .chip[data-ev="EMF Level 5"]   { color: var(--emf);     border-color: var(--emf); }
+  .chip[data-ev="EMF Level 5"].active   { background: var(--emf); }
+  .chip[data-ev="Spirit Box"]    { color: var(--spirit);  border-color: var(--spirit); }
+  .chip[data-ev="Spirit Box"].active    { background: var(--spirit); }
+  .chip[data-ev="Fingerprints"]  { color: var(--fp);      border-color: var(--fp); }
+  .chip[data-ev="Fingerprints"].active  { background: var(--fp); }
+  .chip[data-ev="Ghost Orbs"]    { color: var(--orbs);    border-color: var(--orbs); }
+  .chip[data-ev="Ghost Orbs"].active    { background: var(--orbs); }
+  .chip[data-ev="Freezing Temps"]{ color: var(--freeze);  border-color: var(--freeze); }
+  .chip[data-ev="Freezing Temps"].active{ background: var(--freeze); }
+  .chip[data-ev="D.O.T.S"]       { color: var(--dots);    border-color: var(--dots); }
+  .chip[data-ev="D.O.T.S"].active       { background: var(--dots); }
+  .chip[data-ev="Ghost Writing"] { color: var(--writing); border-color: var(--writing); }
+  .chip[data-ev="Ghost Writing"].active { background: var(--writing); }
+
+  /* ── RESULTS COUNT ── */
+  .count-bar {
+    padding: 0.5rem 1rem 0.25rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  .count-bar span { color: var(--accent); font-weight: 600; }
+
+  /* ── GHOST LIST ── */
+  .ghost-list {
+    padding: 0.25rem 1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  /* ── GHOST CARD ── */
+  .ghost-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: opacity 0.2s;
+    animation: slideIn 0.25s ease forwards;
+  }
+
+  .ghost-card.hidden { display: none; }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Card header — tap to expand */
+  .card-header {
+    display: flex;
+    align-items: center;
+    padding: 0.85rem 1rem;
+    cursor: pointer;
+    gap: 0.75rem;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .card-header:active { background: var(--surface2); }
+
+  .ghost-name {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    flex: 1;
+    letter-spacing: 0.04em;
+  }
+
+  .mimic-star {
+    color: var(--gold);
+    font-size: 0.7rem;
+  }
+
+  /* Evidence pips row */
+  .ev-pips {
+    display: flex;
+    gap: 5px;
+    flex-wrap: nowrap;
+  }
+
+  .pip {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .pip.on  { box-shadow: 0 0 5px currentColor; opacity: 1; }
+  .pip.off { opacity: 0.15; background: var(--muted) !important; box-shadow: none; }
+
+  .pip.emf     { background: var(--emf); color: var(--emf); }
+  .pip.spirit  { background: var(--spirit); color: var(--spirit); }
+  .pip.fp      { background: var(--fp); color: var(--fp); }
+  .pip.orbs    { background: var(--orbs); color: var(--orbs); }
+  .pip.freeze  { background: var(--freeze); color: var(--freeze); }
+  .pip.dots    { background: var(--dots); color: var(--dots); }
+  .pip.writing { background: var(--writing); color: var(--writing); }
+
+  .chevron {
+    color: var(--muted);
+    font-size: 0.75rem;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .ghost-card.open .chevron { transform: rotate(180deg); }
+
+  /* Evidence label strip */
+  .ev-strip {
+    display: flex;
+    gap: 0.35rem;
+    padding: 0 1rem 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .ev-badge {
+    font-size: 0.72rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.05em;
+  }
+
+  .ev-badge.emf     { color: var(--emf);     border-color: var(--emf);     background: rgba(255,71,87,0.08); }
+  .ev-badge.spirit  { color: var(--spirit);  border-color: var(--spirit);  background: rgba(162,155,254,0.08); }
+  .ev-badge.fp      { color: var(--fp);      border-color: var(--fp);      background: rgba(253,203,110,0.08); }
+  .ev-badge.orbs    { color: var(--orbs);    border-color: var(--orbs);    background: rgba(85,239,196,0.08); }
+  .ev-badge.freeze  { color: var(--freeze);  border-color: var(--freeze);  background: rgba(116,185,255,0.08); }
+  .ev-badge.dots    { color: var(--dots);    border-color: var(--dots);    background: rgba(253,121,168,0.08); }
+  .ev-badge.writing { color: var(--writing); border-color: var(--writing); background: rgba(225,112,85,0.08); }
+  .ev-badge.bonus   { color: var(--gold);    border-color: var(--gold);    background: rgba(201,168,76,0.08); opacity: 0.7; }
+
+  /* Tells section */
+  .tells-section {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 0.75rem 1rem 0.85rem;
+    background: var(--surface3);
+  }
+
+  .ghost-card.open .tells-section { display: block; }
+
+  .tells-heading {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+
+  .tell-item {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    margin-bottom: 0.4rem;
+    border-left: 3px solid;
+    background: rgba(255,255,255,0.025);
+    font-size: 0.92rem;
+    line-height: 1.45;
+    align-items: flex-start;
+  }
+
+  .tell-item:last-child { margin-bottom: 0; }
+
+  .tell-item.confirm { border-color: var(--confirm); color: #a8e6cf; }
+  .tell-item.rule    { border-color: var(--rule);    color: #f1a9a0; }
+  .tell-item.hunt    { border-color: var(--hunt);    color: #f8a5c2; }
+  .tell-item.sanity  { border-color: var(--sanity);  color: #f9ca8e; }
+  .tell-item.neutral { border-color: var(--muted);   color: var(--text); opacity: 0.85; }
+
+  .tell-icon { flex-shrink: 0; font-size: 0.9rem; margin-top: 2px; }
+
+  /* No results */
+  .no-results {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--muted);
+    font-style: italic;
+    display: none;
+  }
+
+  /* ── BOTTOM LEGEND ── */
+  .legend {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(7,9,13,0.96);
+    border-top: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    padding: 0.5rem 1rem;
+    display: flex;
+    gap: 0.6rem 1.2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+    z-index: 200;
+  }
+
+  .leg { display: flex; align-items: center; gap: 0.3rem; }
+  .leg-bar { width: 3px; height: 12px; border-radius: 2px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>☽ Phasmo <span>Field Guide</span> ☾</h1>
+  <p>Tap a ghost to reveal evidence &amp; tells</p>
+</div>
+
+<div class="search-bar">
+  <div class="search-wrap">
+    <input type="text" id="searchInput" placeholder="Search ghost..." autocomplete="off" autocorrect="off" spellcheck="false">
+  </div>
+</div>
+
+<div class="filter-section">
+  <div class="filter-label">
+    <span>FILTER BY EVIDENCE</span>
+    <button class="clear-btn" id="clearBtn">CLEAR ALL</button>
+  </div>
+  <div class="chips">
+    <button class="chip" data-ev="EMF Level 5">EMF 5</button>
+    <button class="chip" data-ev="Spirit Box">Spirit Box</button>
+    <button class="chip" data-ev="Fingerprints">Fingerprints</button>
+    <button class="chip" data-ev="Ghost Orbs">Ghost Orbs</button>
+    <button class="chip" data-ev="Freezing Temps">Freezing</button>
+    <button class="chip" data-ev="D.O.T.S">D.O.T.S</button>
+    <button class="chip" data-ev="Ghost Writing">Writing</button>
+  </div>
+</div>
+
+<div class="count-bar" id="countBar"></div>
+
+<div class="ghost-list" id="ghostList"></div>
+<div class="no-results" id="noResults">No ghosts match your filters.</div>
+
+<div class="legend">
+  <div class="leg"><div class="leg-bar" style="background:var(--confirm)"></div> Confirms</div>
+  <div class="leg"><div class="leg-bar" style="background:var(--rule)"></div> Rules out</div>
+  <div class="leg"><div class="leg-bar" style="background:var(--hunt)"></div> Hunt</div>
+  <div class="leg"><div class="leg-bar" style="background:var(--sanity)"></div> Sanity</div>
+  <div class="leg"><div class="leg-bar" style="background:var(--muted)"></div> General</div>
+</div>
+
+<script>
+const EV_META = [
+  { key: "EMF Level 5",    cls: "emf",     short: "EMF 5" },
+  { key: "Spirit Box",     cls: "spirit",  short: "Spirit Box" },
+  { key: "Fingerprints",   cls: "fp",      short: "Fingerprints" },
+  { key: "Ghost Orbs",     cls: "orbs",    short: "Ghost Orbs" },
+  { key: "Freezing Temps", cls: "freeze",  short: "Freezing" },
+  { key: "D.O.T.S",        cls: "dots",    short: "D.O.T.S" },
+  { key: "Ghost Writing",  cls: "writing", short: "Writing" },
+];
+
+const GHOSTS = [
+  { name: "Banshee", evidence: ["EMF Level 5","Fingerprints","Ghost Orbs"],
+    tells: [
+      { type:"confirm", icon:"🎵", text:"Unique scream on the Parabolic Microphone — if you hear it, Banshee is confirmed." },
+      { type:"confirm", icon:"👁️", text:"With DOTS active and lights off, it walks directly toward its target player rather than the nearest one." },
+      { type:"hunt",   icon:"🎯", text:"During a hunt it ignores all non-target players — it passes through them without killing them." },
+      { type:"sanity", icon:"💀", text:"Only hunts based on its TARGET's sanity (50%), not the group average. One safe person in the truck can delay hunts." },
+      { type:"neutral",icon:"🎤", text:"More likely to do singing ghost events than other ghosts, though not reliable confirmation alone." },
+    ]
+  },
+  { name: "Deogen", evidence: ["Spirit Box","Ghost Writing","D.O.T.S"],
+    tells: [
+      { type:"confirm", icon:"🔊", text:"Standing within 1m and using the Spirit Box gives a 33% chance of a unique deep breathing/bull-like response." },
+      { type:"hunt",   icon:"👁️", text:"ALWAYS knows where you are during a hunt — hiding is completely useless. It will find you no matter where you go. Critical for new players to know." },
+      { type:"hunt",   icon:"🏃", text:"Charges at 3m/s when far but slows to a near-walkable crawl within ~2.5m — you can outpace it by staying close." },
+      { type:"sanity", icon:"💀", text:"Lower hunt threshold of 40% sanity." },
+    ]
+  },
+  { name: "Demon", evidence: ["Fingerprints","Ghost Writing","Freezing Temps"],
+    tells: [
+      { type:"confirm", icon:"✝️", text:"Crucifix has 50% bonus range against Demons (~4.5m T1, 6m T2, 7.5m T3)." },
+      { type:"confirm", icon:"🕯️", text:"Smudging prevents hunting for only 60 seconds instead of the normal 90 — opposite of the Spirit." },
+      { type:"hunt",   icon:"⚡", text:"Can hunt at ANY sanity, even 100% (extremely rare — 0.9% Steam achievement)." },
+      { type:"hunt",   icon:"⏱️", text:"Post-hunt grace period is only 20 seconds vs the normal 25 — restarts hunts faster than any ghost." },
+      { type:"sanity", icon:"💀", text:"Normal hunt threshold is 70% — easier to rule out if it doesn't hunt until sanity is quite low." },
+    ]
+  },
+  { name: "Goryo", evidence: ["EMF Level 5","Fingerprints","D.O.T.S"],
+    tells: [
+      { type:"confirm", icon:"📷", text:"D.O.T.S will ONLY show when observed through a video camera — it won't appear if you watch from inside the room in person." },
+      { type:"rule",   icon:"🚫", text:"Rarely if ever changes its ghost room — a frequently-moving ghost is not a Goryo." },
+      { type:"neutral",icon:"📌", text:"D.O.T.S is forced evidence — if playing 1-2 evidence and D.O.T.S is absent, cross Goryo off immediately." },
+    ]
+  },
+  { name: "Hantu", evidence: ["Fingerprints","Ghost Orbs","Freezing Temps"],
+    tells: [
+      { type:"confirm", icon:"💨", text:"With power OFF during a hunt, the Hantu exhales visible frozen breath — the ONLY ghost that does this." },
+      { type:"rule",   icon:"🔌", text:"If the ghost ever turns the power ON, it cannot be a Hantu." },
+      { type:"hunt",   icon:"🌡️", text:"Moves faster the colder the room — extremely dangerous in freezing environments." },
+      { type:"neutral",icon:"❄️", text:"Freezing Temps is forced evidence — absent Freezing on 1-2 evidence runs rules Hantu out immediately." },
+    ]
+  },
+  { name: "Jinn", evidence: ["EMF Level 5","Fingerprints","Freezing Temps"],
+    tells: [
+      { type:"rule",   icon:"🔌", text:"Will NEVER turn the power off itself. If the breaker cuts out, it is not a Jinn. (It can turn a light on which overloads the breaker — don't confuse these.)" },
+      { type:"confirm", icon:"⚡", text:"If power is ON and a player loses 25% sanity suddenly near the fuse box, it used its ability — also drops EMF 2 or 5 at the breaker." },
+      { type:"hunt",   icon:"🏃", text:"During hunts with power ON and line of sight from >3m, speed locks to a fast 2.5m/s." },
+      { type:"neutral",icon:"🔋", text:"All Jinn abilities disabled if the fuse box is turned off." },
+    ]
+  },
+  { name: "Mare", evidence: ["Spirit Box","Ghost Orbs","Ghost Writing"],
+    tells: [
+      { type:"rule",   icon:"💡", text:"If the ghost ever turns a light ON by itself, it cannot be a Mare." },
+      { type:"confirm", icon:"🌑", text:"Wanders from lit rooms into dark ones and may move its favourite room to an unlit area." },
+      { type:"confirm", icon:"💥", text:"Higher chance to shatter lights than other ghosts." },
+      { type:"confirm", icon:"🔦", text:"Within 4m, flicking a light ON has a small chance of the Mare immediately turning it back off." },
+      { type:"sanity", icon:"💀", text:"Hunts at 60% in dark rooms, only 40% if lights are on in its current room." },
+    ]
+  },
+  { name: "Moroi", evidence: ["Spirit Box","Ghost Writing","Freezing Temps"],
+    tells: [
+      { type:"confirm", icon:"📻", text:"Can curse players through Spirit Box or Parabolic Mic, doubling passive sanity drain. Only broken by sanity medication." },
+      { type:"hunt",   icon:"🏃", text:"Fastest ghost in the game at low sanity — speed scales as your sanity drops." },
+      { type:"confirm", icon:"😵", text:"Sanity draining unusually fast with no obvious cause? You're likely cursed by a Moroi." },
+      { type:"neutral",icon:"📻", text:"Spirit Box is forced evidence — guaranteed regardless of evidence count." },
+      { type:"hunt",   icon:"🕯️", text:"Smudging keeps it blinded for 7.5 seconds instead of the usual 5." },
+    ]
+  },
+  { name: "Myling", evidence: ["EMF Level 5","Fingerprints","Ghost Writing"],
+    tells: [
+      { type:"confirm", icon:"🎙️", text:"Very active on the Parabolic Microphone — 2-3 whispers in under a minute is a strong (if unreliable) indicator." },
+      { type:"hunt",   icon:"🔇", text:"Extremely quiet during hunts — footsteps and vocalisations only audible within 12m instead of the normal 20m. It can sneak right up on you." },
+    ]
+  },
+  { name: "Obake", evidence: ["EMF Level 5","Fingerprints","Ghost Orbs"],
+    tells: [
+      { type:"confirm", icon:"✋", text:"16.7% chance to leave a six-fingered handprint — if you see six fingers, it is definitively an Obake." },
+      { type:"confirm", icon:"👻", text:"Briefly changes its ghost model during a hunt — the ONLY ghost to shape-shift. Dead players cannot see this." },
+      { type:"rule",   icon:"🔦", text:"Only 75% chance to leave UV fingerprints (vs 100% for others) — missing UV doesn't rule it out." },
+      { type:"neutral",icon:"🔦", text:"UV/Fingerprints is forced evidence — always present regardless of evidence count." },
+    ]
+  },
+  { name: "Oni", evidence: ["EMF Level 5","Freezing Temps","D.O.T.S"],
+    tells: [
+      { type:"rule",   icon:"💨", text:"Cannot do an 'airball' ghost event (invisible entity moves an object with no visible form). If you see this, rule Oni out." },
+      { type:"confirm", icon:"👥", text:"Becomes noticeably MORE active with more players nearby — busy in groups, quiet when alone." },
+      { type:"hunt",   icon:"👁️", text:"Visible for longer periods during hunts (shorter invisibility flickers) — easier to see and track." },
+      { type:"sanity", icon:"💀", text:"Doubles sanity drain on collision during a ghost event — losing ~20% sanity from one contact is a strong Oni tell." },
+    ]
+  },
+  { name: "Onryo", evidence: ["Spirit Box","Ghost Orbs","Freezing Temps"],
+    tells: [
+      { type:"confirm", icon:"🕯️", text:"If a lit flame is within 4m when it tries to hunt, it blows out the flame instead — the hunt fails." },
+      { type:"confirm", icon:"🔥", text:"After blowing out 3 flames in succession, it becomes very likely to start a hunt only a crucifix can stop." },
+      { type:"hunt",   icon:"✝️", text:"Best test: place a crucifix in the room with a lit candle on top. On the 3rd blowout, if the crucifix charges burn it's almost certainly an Onryo." },
+      { type:"sanity", icon:"💀", text:"Hunts at 60% sanity — run the 3-blowout test before sanity drops below this." },
+    ]
+  },
+  { name: "Phantom", evidence: ["Spirit Box","Fingerprints","D.O.T.S"],
+    tells: [
+      { type:"confirm", icon:"📷", text:"Photo the ghost during an event or DOTS state — the Phantom immediately disappears. A 3-star photo with no visible ghost = likely Phantom." },
+      { type:"rule",   icon:"📷", text:"If you can SEE the ghost in the photo, it can NEVER be a Phantom." },
+      { type:"hunt",   icon:"👻", text:"Invisible for longer periods during hunts — very hard to track and loop." },
+      { type:"sanity", icon:"😵", text:"Drains 0.5% sanity/sec within 10m during events or hunts (on top of passive drain). Heartbeat = you're in range." },
+    ]
+  },
+  { name: "Poltergeist", evidence: ["Spirit Box","Fingerprints","Ghost Writing"],
+    tells: [
+      { type:"confirm", icon:"💥", text:"Throws MULTIPLE objects across the room in one burst ('Polter-plosion') — if you see this, it's confirmed Poltergeist." },
+      { type:"confirm", icon:"🪑", text:"During hunts, throws an item every 0.5 seconds vs other ghosts' 50% chance each 0.5 seconds." },
+      { type:"confirm", icon:"💪", text:"Can hurl a single object with significantly greater force than normal ghosts." },
+    ]
+  },
+  { name: "Raiju", evidence: ["EMF Level 5","Ghost Orbs","D.O.T.S"],
+    tells: [
+      { type:"confirm", icon:"⚡", text:"Electronics disruption range is 15m (vs normal 10m) — equipment flickering from unusually far = suspect Raiju." },
+      { type:"hunt",   icon:"🏃", text:"Speeds up significantly near active electronics during hunts (6m range small maps, 8m medium, 10m large)." },
+      { type:"sanity", icon:"💀", text:"Hunt threshold increases from 50% to 65% when electronics are active nearby." },
+    ]
+  },
+  { name: "Revenant", evidence: ["Ghost Orbs","Ghost Writing","Freezing Temps"],
+    tells: [
+      { type:"confirm", icon:"🐢", text:"Moves at a very slow 1m/s when it can't detect any player — visibly sluggish wandering is a clear tell." },
+      { type:"hunt",   icon:"💨", text:"Accelerates to a deadly 3m/s the instant it has line of sight OR detects active electronics." },
+      { type:"hunt",   icon:"📵", text:"Break line of sight immediately and turn ALL electronics off — it drops back to crawl speed the moment it loses detection." },
+    ]
+  },
+  { name: "Shade", evidence: ["EMF Level 5","Ghost Writing","Freezing Temps"],
+    tells: [
+      { type:"rule",   icon:"👤", text:"If the ghost performs any event in the same room as you, it CANNOT be a Shade." },
+      { type:"rule",   icon:"📖", text:"Will not write in the Ghost Writing book or blow out a candle if you're in the same room." },
+      { type:"confirm", icon:"🌫️", text:"When it appears, it more commonly manifests as a shadow rather than a full ghost model." },
+      { type:"neutral",icon:"😶", text:"Very low activity overall — extreme shyness is the primary identifier." },
+    ]
+  },
+  { name: "Spirit", evidence: ["EMF Level 5","Spirit Box","Ghost Writing"],
+    tells: [
+      { type:"confirm", icon:"🕯️", text:"Smudging prevents hunting for 180 seconds (3 min) instead of normal 90. Set a timer — no hunt after 3 min means Spirit." },
+      { type:"neutral",icon:"😶", text:"Has no unique behaviours or special abilities — one of the hardest ghosts to confirm by observation alone." },
+    ]
+  },
+  { name: "Thaye", evidence: ["Ghost Orbs","Ghost Writing","D.O.T.S"],
+    tells: [
+      { type:"confirm", icon:"👴", text:"Ask its age via Ouija board, wait in the room, ask again — if the age increases by 1-4 years, it's a Thaye aging." },
+      { type:"confirm", icon:"💨", text:"Extremely fast and active at the start (2.75m/s) but noticeably slows over time as it ages, capping at 1m/s after 10 ages." },
+      { type:"hunt",   icon:"🏃", text:"Does NOT speed up when achieving line of sight during a hunt — consistent speed throughout a chase is a tell." },
+      { type:"sanity", icon:"💀", text:"Starts hunting at 75% sanity, dropping 6% per successful age (needs a player in-room). Minimum 15% after 10 ages." },
+    ]
+  },
+  { name: "The Mimic", evidence: ["Spirit Box","Fingerprints","Freezing Temps"], bonusOrbs: true,
+    tells: [
+      { type:"confirm", icon:"👁️", text:"ALWAYS leaves Ghost Orbs regardless of evidence settings — Ghost Orbs on a zero-evidence run = almost certainly The Mimic." },
+      { type:"confirm", icon:"🎭", text:"If you observe behaviours from multiple different ghost types in one contract, it's The Mimic." },
+      { type:"neutral",icon:"🎭", text:"Can copy ANY ghost's unique abilities, behaviours, and hunting strategies — deeply unpredictable." },
+    ]
+  },
+  { name: "The Twins", evidence: ["EMF Level 5","Spirit Box","Freezing Temps"],
+    tells: [
+      { type:"confirm", icon:"🪃", text:"'Twin-teractions' — can interact with objects up to 16m from the ghost room (normal ghosts only 3m). Far-off interactions are a strong tell." },
+      { type:"confirm", icon:"🏃", text:"Two distinct hunt speeds: slow twin (~1.53m/s) and fast twin (~1.87m/s) — variable speed between hunts is notable." },
+      { type:"hunt",   icon:"📍", text:"Hunt can start from the ghost's position OR last interaction location — can bypass crucifixes this way." },
+      { type:"neutral",icon:"👻", text:"Despite the name, it is only ONE ghost entity, not two." },
+    ]
+  },
+  { name: "Wraith", evidence: ["EMF Level 5","Spirit Box","D.O.T.S"],
+    tells: [
+      { type:"rule",   icon:"🧂", text:"Will NEVER step in salt — the moment any ghost steps in salt, definitively rule out Wraith." },
+      { type:"confirm", icon:"⚡", text:"When it teleports to a player it drops EMF 2. Unexpected EMF 2 far from the ghost room = strong Wraith indicator." },
+      { type:"neutral",icon:"🌀", text:"Can teleport to any player anywhere on the map — unpredictably dangerous with no grace period active." },
+    ]
+  },
+  { name: "Yokai", evidence: ["Spirit Box","Ghost Orbs","D.O.T.S"],
+    tells: [
+      { type:"confirm", icon:"🎙️", text:"Talking near it (in-game voice) raises its hunt threshold up to 80% sanity — early hunt while players chat = suspect Yokai." },
+      { type:"hunt",   icon:"👂", text:"Can only detect voices/electronics within 2.5m (vs normal 9m/7.5m) — much safer at short range during a hunt." },
+      { type:"sanity", icon:"💀", text:"Base threshold 50% but escalates to up to 80% if players keep talking near it." },
+    ]
+  },
+  { name: "Yurei", evidence: ["Ghost Orbs","Freezing Temps","D.O.T.S"],
+    tells: [
+      { type:"confirm", icon:"🚪", text:"The ONLY ghost that can interact with the front door outside of a ghost event. Front door moving with no event = Yurei." },
+      { type:"confirm", icon:"🚪", text:"Can fully close a completely open door — unique to Yurei." },
+      { type:"neutral",icon:"😵", text:"Has an ability to drain 15% sanity from all players within 7.5m of it." },
+    ]
+  },
+];
+
+const list = document.getElementById('ghostList');
+const noResults = document.getElementById('noResults');
+const countBar = document.getElementById('countBar');
+
+// Build cards
+GHOSTS.forEach((g, i) => {
+  const card = document.createElement('div');
+  card.className = 'ghost-card';
+  card.dataset.name = g.name.toLowerCase();
+  card.dataset.evidence = g.evidence.join('|');
+  card.dataset.bonus = g.bonusOrbs ? '1' : '0';
+  card.style.animationDelay = `${i * 18}ms`;
+
+  // Header
+  const header = document.createElement('div');
+  header.className = 'card-header';
+
+  const nameEl = document.createElement('div');
+  nameEl.className = 'ghost-name';
+  nameEl.textContent = g.name;
+  if (g.bonusOrbs) {
+    const star = document.createElement('span');
+    star.className = 'mimic-star';
+    star.textContent = ' ✦';
+    nameEl.appendChild(star);
+  }
+
+  const pips = document.createElement('div');
+  pips.className = 'ev-pips';
+  EV_META.forEach(ev => {
+    const pip = document.createElement('div');
+    const has = g.evidence.includes(ev.key) || (ev.key === "Ghost Orbs" && g.bonusOrbs);
+    pip.className = `pip ${ev.cls} ${has ? 'on' : 'off'}`;
+    pip.title = ev.key;
+    pips.appendChild(pip);
+  });
+
+  const chev = document.createElement('span');
+  chev.className = 'chevron';
+  chev.textContent = '▼';
+
+  header.appendChild(nameEl);
+  header.appendChild(pips);
+  header.appendChild(chev);
+  card.appendChild(header);
+
+  // Evidence badges
+  const strip = document.createElement('div');
+  strip.className = 'ev-strip';
+  g.evidence.forEach(evKey => {
+    const meta = EV_META.find(m => m.key === evKey);
+    if (!meta) return;
+    const badge = document.createElement('span');
+    badge.className = `ev-badge ${meta.cls}`;
+    badge.textContent = meta.short;
+    strip.appendChild(badge);
+  });
+  if (g.bonusOrbs) {
+    const badge = document.createElement('span');
+    badge.className = 'ev-badge bonus';
+    badge.textContent = '+ Ghost Orbs*';
+    strip.appendChild(badge);
+  }
+  card.appendChild(strip);
+
+  // Tells
+  const tellsSection = document.createElement('div');
+  tellsSection.className = 'tells-section';
+
+  const heading = document.createElement('div');
+  heading.className = 'tells-heading';
+  heading.textContent = 'BEHAVIOURAL TELLS & ABILITIES';
+  tellsSection.appendChild(heading);
+
+  g.tells.forEach(tell => {
+    const item = document.createElement('div');
+    item.className = `tell-item ${tell.type}`;
+    item.innerHTML = `<span class="tell-icon">${tell.icon}</span><span>${tell.text}</span>`;
+    tellsSection.appendChild(item);
+  });
+
+  card.appendChild(tellsSection);
+
+  // Toggle on tap
+  header.addEventListener('click', () => {
+    card.classList.toggle('open');
+  });
+
+  list.appendChild(card);
+});
+
+// Filtering
+let activeFilters = new Set();
+let search = '';
+
+function applyFilters() {
+  const cards = list.querySelectorAll('.ghost-card');
+  let visible = 0;
+  cards.forEach(card => {
+    const evList = card.dataset.evidence.split('|');
+    const bonus = card.dataset.bonus === '1';
+    const name = card.dataset.name;
+
+    const matchSearch = !search || name.includes(search);
+    let matchFilters = true;
+    if (activeFilters.size > 0) {
+      for (const f of activeFilters) {
+        const has = evList.includes(f) || (f === "Ghost Orbs" && bonus);
+        if (!has) { matchFilters = false; break; }
+      }
+    }
+
+    const show = matchSearch && matchFilters;
+    card.classList.toggle('hidden', !show);
+    if (show) visible++;
+  });
+
+  noResults.style.display = visible === 0 ? 'block' : 'none';
+  const total = GHOSTS.length;
+  if (activeFilters.size > 0 || search) {
+    countBar.innerHTML = `Showing <span>${visible}</span> of ${total} ghosts`;
+  } else {
+    countBar.innerHTML = `All <span>${total}</span> ghosts`;
+  }
+}
+
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const ev = chip.dataset.ev;
+    if (activeFilters.has(ev)) {
+      activeFilters.delete(ev);
+      chip.classList.remove('active');
+    } else {
+      activeFilters.add(ev);
+      chip.classList.add('active');
+    }
+    applyFilters();
+  });
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  activeFilters.clear();
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  search = '';
+  document.getElementById('searchInput').value = '';
+  applyFilters();
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  search = e.target.value.trim().toLowerCase();
+  applyFilters();
+});
+
+applyFilters();
+</script>
+</body>
+</html>
